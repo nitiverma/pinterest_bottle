@@ -1,5 +1,5 @@
 # Author: Niti Verma
-from bottle import get, post, request, run, response, Bottle # or route
+from bottle import get, post, request, run, response, abort, Bottle # or route
 import bottle
 from uuid import uuid4
 from bottle.ext import couchdb
@@ -40,7 +40,7 @@ def get_all_pins(db):
   map_fun = getMapFun('pin')
   pins = []
   for row in db.query(map_fun):
-    pins.append({'pin_name': row.value['pin_name'], 'pin_url': row.value['pin_url']})
+    pins.append({'pin_name': row.value['pin_name'], 'client_url': row.value['pin_url']})
   response.set_header('Content-Type', 'application/json')
   return json.dumps(pins)
 
@@ -99,7 +99,7 @@ def uploadpin(user_id, db):
     doc_id = 'pin:' + uuid4().hex
     db[doc_id] = {
       'pin_name': request.json['pin_name'],
-      'pin_url': request.json['pin_url'],
+      'pin_url': request.json['client_url'],
       'comments': []
     }
     response.status = 201
@@ -146,7 +146,7 @@ def create_board(user_id, db):
 
     doc_id = 'board:' + uuid4().hex
     db[doc_id] = {
-      'name': 'board',#request.json['boardname'], 
+      'name': request.json['boardname'], 
       'owner': user_id, 
       'pins': []
     }
